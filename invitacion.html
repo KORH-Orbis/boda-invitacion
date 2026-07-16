@@ -2,8 +2,14 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Kevin &amp; Claudia — Nuestra Boda</title>
+<meta name="theme-color" content="#1a1a2e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="K&C Boda">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&amp;family=Lato:wght@300;400;700&amp;display=swap" rel="stylesheet">
 <script>
 (function(){
@@ -395,20 +401,31 @@ footer{
 
 /* Responsive */
 @media(max-width:600px){
-  section>.inner{padding:40px 16px 90px 16px}
-  .countdown-grid{gap:16px}
-  .details-grid{grid-template-columns:1fr}
-  .calendar-grid{max-width:300px}
-  .qr-container img{width:180px;height:180px}
+  section>.inner{padding:48px 24px 90px 24px}
+  section h2{margin-bottom:24px;font-size:clamp(22px,6vw,36px)}
+  .countdown-grid{gap:24px}
+  .countdown-item span{font-size:clamp(32px,12vw,60px)}
+  .details-grid{grid-template-columns:1fr;gap:16px}
+  .detail-card{padding:32px 24px}
+  .detail-card.map-card iframe{height:160px}
+  .calendar-grid{max-width:100%}
+  .calendar-grid .day{font-size:16px;padding:8px 0}
+  .qr-container img{width:200px;height:200px}
   #navDots{right:10px;gap:8px}
   #navDots a{width:8px;height:8px}
   #navDots a.active{width:10px;height:10px}
   #navDots a::after{display:none}
   #musicToggle{right:80px;bottom:20px;width:40px;height:40px;font-size:18px}
   #darkToggle{right:20px;bottom:20px;width:40px;height:40px;font-size:18px}
-  .godparents-grid{grid-template-columns:1fr 1fr;gap:16px}
-  .godparent-avatar{width:60px;height:60px;font-size:28px}
-  .detail-card.map-card iframe{height:160px}
+  .godparents-grid{grid-template-columns:1fr;gap:20px}
+  .godparent-card{padding:24px 20px}
+  .godparent-avatar{width:72px;height:72px;font-size:32px}
+  .story-content{font-size:17px;line-height:1.9;padding:0 4px}
+  .hero-content{padding:40px 16px}
+  .hero-content h1{font-size:clamp(36px,12vw,90px)}
+  .hero-sub{font-size:clamp(14px,3.5vw,20px);padding:0 8px}
+  #rsvpForm{gap:16px}
+  #rsvpForm input,#rsvpForm select{padding:16px 18px}
   #arrowDown,#arrowUp{width:40px;height:40px;font-size:20px}
   #arrowDown{bottom:20px}#arrowUp{bottom:72px}
 }
@@ -555,7 +572,7 @@ footer{
         <h2>Detalles del Evento</h2>
         <div class="details-grid">
           <div class="detail-card">
-            <div class="detail-icon">📅</div><h3>Fecha</h3><p>Próximamente</p>
+            <div class="detail-icon">📅</div><h3>Fecha</h3><p>26 de Febrero de 2027</p>
           </div>
           <div class="detail-card">
             <div class="detail-icon">⏰</div><h3>Hora</h3><p>Por confirmar</p>
@@ -589,10 +606,11 @@ footer{
         <p style="font-weight:300;color:var(--text-muted);margin-bottom:32px;font-size:16px">Queremos ver cada momento a través de tus ojos</p>
         <div class="qr-container">
           <p class="qr-label">Escanea para subir</p>
-          <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://fotos.kevinclaudia.com" alt="Código QR para subir fotos">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://photos.app.goo.gl/whN5m2qcn8dthy7HA" alt="Código QR para subir fotos">
           <p>Sube todas las fotos y videos<br>que tomes durante la celebración.<br><strong>No queremos perdernos ningún momento</strong></p>
         </div>
         <p class="qr-save-text">Guarda este código QR para compartir tus recuerdos</p>
+        <a href="https://photos.app.goo.gl/whN5m2qcn8dthy7HA" target="_blank" rel="noopener" style="display:inline-block;margin-top:20px;padding:14px 32px;background:var(--gold);color:#fff;border-radius:8px;text-decoration:none;font-family:'Lato',sans-serif;font-size:15px;letter-spacing:1px;transition:opacity .3s">📷 Abrir álbum de fotos</a>
       </div>
     </div>
   </section>
@@ -642,7 +660,7 @@ footer{
 
 <button id="darkToggle" title="Modo oscuro">☀️</button>
 <button id="musicToggle" title="Reproducir música">♪</button>
-<div id="youtube-player" style="position:fixed;bottom:100px;right:30px;width:1px;height:1px;opacity:0.01;pointer-events:none;z-index:999"></div>
+<audio id="bgMusic" preload="auto" loop src="/data/wedding_music.mp3"></audio>
 
 <script>
 // ========== SECTION NAVIGATION ==========
@@ -651,39 +669,39 @@ var sections = document.querySelectorAll('section');
 var total = sections.length;
 var currentIdx = 0;
 
+function updateArrows() {
+  var sec = sections[currentIdx];
+  var st = sec.scrollTop;
+  var atTop = st <= 20;
+  var atBottom = st + sec.clientHeight >= sec.scrollHeight - 60;
+  if (sec.scrollHeight <= sec.clientHeight + 10) { atTop = true; atBottom = true; }
+  document.getElementById('arrowUp').style.display = (atTop && currentIdx > 0) ? 'flex' : 'none';
+  document.getElementById('arrowDown').style.display = (atBottom && currentIdx < total - 1) ? 'flex' : 'none';
+}
+
 function goToSection(index) {
   if (index < 0 || index >= total) return;
-  // Deactivate all
   sections.forEach(function(s){ s.classList.remove('active'); });
-  // Activate target
   currentIdx = index;
   sections[currentIdx].classList.add('active');
   sections[currentIdx].scrollTop = 0;
 
-  // Arrow visibility
-  document.getElementById('arrowUp').style.display = currentIdx === 0 ? 'none' : 'flex';
-  document.getElementById('arrowDown').style.display = currentIdx >= total - 1 ? 'none' : 'flex';
-
-  // Reset reveals
   sections.forEach(function(sec) {
     sec.querySelectorAll('.reveal').forEach(function(el) { el.classList.remove('visible'); });
   });
 
-  // Update nav
   var activeId = sections[currentIdx].id;
   navDots.forEach(function(link) {
     link.classList.toggle('active', link.getAttribute('href') === '#' + activeId);
   });
 
-  // Trigger reveals after transition
   setTimeout(function() {
     sections[currentIdx].querySelectorAll('.reveal').forEach(function(el) { el.classList.add('visible'); });
   }, 400);
 
-  // Scroll section to top
   sections[currentIdx].scrollTop = 0;
+  setTimeout(updateArrows, 50);
 
-  // Reset RSVP message
   if (activeId === 'rsvp') {
     document.getElementById('rsvpMessage').textContent = '';
   }
@@ -693,9 +711,17 @@ function goToSection(index) {
 sections[0].classList.add('active');
 setTimeout(function() {
   sections[0].querySelectorAll('.reveal').forEach(function(el) { el.classList.add('visible'); });
-  document.getElementById('arrowUp').style.display = 'none';
-  document.getElementById('arrowDown').style.display = 'flex';
+  updateArrows();
 }, 200);
+
+// Scroll listeners for arrows visibility
+for (var i = 0; i < sections.length; i++) {
+  (function(idx) {
+    sections[idx].addEventListener('scroll', function() {
+      if (idx === currentIdx) updateArrows();
+    });
+  })(i);
+}
 
 // ========== NAV DOTS ==========
 var navDots = document.querySelectorAll('#navDots a');
@@ -804,7 +830,7 @@ function launchConfetti() {
 
 // ========== COUNTDOWN ==========
 function updateCountdown() {
-  var now = new Date(), target = new Date(now.getFullYear(),5,15);
+  var now = new Date(), target = new Date(2027,1,26);
   if (target<=now) target.setFullYear(now.getFullYear()+1);
   var diff = target-now;
   if (diff<=0) { document.getElementById('days').textContent='00'; document.getElementById('hours').textContent='00'; document.getElementById('minutes').textContent='00'; document.getElementById('seconds').textContent='00'; return; }
@@ -828,7 +854,7 @@ document.getElementById('galleryPrev').addEventListener('click',function(){goToS
 document.getElementById('galleryNext').addEventListener('click',function(){goToSlide(currentSlide+1)});
 
 // ========== CALENDAR ==========
-var calDate = new Date(), today = new Date(), selectedDay = null;
+var calDate = new Date(2027,1,1), today = new Date(), selectedDay = new Date(2027,1,26);
 var months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 function renderCalendar() {
   var y=calDate.getFullYear(), m=calDate.getMonth();
@@ -845,14 +871,7 @@ function renderCalendar() {
   }
   var grid = document.getElementById('calGrid');
   grid.innerHTML = html;
-  grid.querySelectorAll('.day:not(.empty)').forEach(function(el){
-    el.addEventListener('click',function(){
-      var d=parseInt(this.dataset.day);
-      selectedDay=new Date(y,m,d);
-      document.getElementById('calNote').textContent='📌 Día marcado: '+d+' de '+months[m]+' de '+y;
-      renderCalendar();
-    });
-  });
+  document.getElementById('calNote').textContent='📅 26 de Febrero de 2027';
 }
 document.getElementById('calPrev').addEventListener('click',function(){calDate.setMonth(calDate.getMonth()-1);renderCalendar()});
 document.getElementById('calNext').addEventListener('click',function(){calDate.setMonth(calDate.getMonth()+1);renderCalendar()});
@@ -906,19 +925,21 @@ if (localStorage.getItem('theme')==='dark'||(!localStorage.getItem('theme')&&pre
 updateDarkUI();
 darkToggle.addEventListener('click',function(){document.body.classList.toggle('dark');updateDarkUI()});
 
-// ========== YOUTUBE MUSIC ==========
-var player, isPlaying = false, musicBtn = document.getElementById('musicToggle');
-function onYouTubeIframeAPIReady() {
-  player = new YT.Player('youtube-player',{height:'1',width:'1',videoId:'LI3wRlkpf6M',playerVars:{autoplay:0,loop:1,playlist:'LI3wRlkpf6M',controls:0,showinfo:0,modestbranding:1,start:27},events:{onReady:onPlayerReady,onStateChange:onPlayerStateChange}});
-}
-function onPlayerReady(e) { musicBtn.addEventListener('click',toggleMusic); e.target.seekTo(27); }
-function onPlayerStateChange(e) {
-  if (e.data===YT.PlayerState.PLAYING) { isPlaying=true; musicBtn.classList.add('playing'); musicBtn.textContent='♫'; }
-  else { isPlaying=false; musicBtn.classList.remove('playing'); musicBtn.textContent='♪'; if (e.data===YT.PlayerState.ENDED&&player) player.playVideo(); }
-}
-function toggleMusic() { if (!player) return; if (isPlaying) player.pauseVideo(); else { player.seekTo(27); player.playVideo(); } }
-var tag = document.createElement('script'); tag.src='https://www.youtube.com/iframe_api';
-document.getElementsByTagName('script')[0].parentNode.insertBefore(tag,document.getElementsByTagName('script')[0]);
+// ========== MUSIC ==========
+var audio = document.getElementById('bgMusic'), musicBtn = document.getElementById('musicToggle'), isPlaying = true;
+musicBtn.textContent = '♫'; musicBtn.classList.add('playing');
+audio.volume = 0.5;
+audio.play().then(function(){ isPlaying = true; }).catch(function(){
+  isPlaying = false; musicBtn.classList.remove('playing'); musicBtn.textContent = '♪';
+  function unlock(e) { e.target.removeEventListener('touchstart',unlock); e.target.removeEventListener('click',unlock); audio.play(); }
+  document.addEventListener('touchstart',unlock);
+  document.addEventListener('click',unlock);
+});
+musicBtn.addEventListener('click',function(){
+  if (audio.paused) { audio.play(); musicBtn.classList.add('playing'); musicBtn.textContent='♫'; isPlaying=true; }
+  else { audio.pause(); musicBtn.classList.remove('playing'); musicBtn.textContent='♪'; isPlaying=false; }
+});
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
 </script>
 </body>
 </html>
