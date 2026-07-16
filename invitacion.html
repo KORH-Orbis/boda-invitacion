@@ -660,6 +660,7 @@ footer{
 
 <button id="darkToggle" title="Modo oscuro">☀️</button>
 <button id="musicToggle" title="Reproducir música">♪</button>
+<button id="installBtn" title="Instalar app" style="display:none;position:fixed;bottom:160px;right:30px;width:44px;height:44px;border-radius:50%;border:2px solid var(--gold);background:var(--bg-section);color:var(--gold);font-size:20px;cursor:pointer;z-index:1000;display:none;align-items:center;justify-content:center">⬇</button>
 <audio id="bgMusic" preload="auto" loop src="/data/wedding_music.mp3"></audio>
 
 <script>
@@ -940,6 +941,9 @@ musicBtn.addEventListener('click',function(){
   else { audio.pause(); musicBtn.classList.remove('playing'); musicBtn.textContent='♪'; isPlaying=false; }
 });
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+var installBtn = document.getElementById('installBtn'), installPrompt = null;
+window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); installPrompt=e; installBtn.style.display='flex'; });
+installBtn.addEventListener('click',function(){ if (!installPrompt) return; installPrompt.prompt(); installPrompt.userChoice.then(function(){ installPrompt=null; installBtn.style.display='none'; }); });
 </script>
 </body>
 </html>
