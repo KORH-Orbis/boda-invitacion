@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel — Invitados</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700&amp;family=Lato:wght@300;400;700&amp;display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--gold:#C9A84C;--gold-dark:#b8963b}
+body{font-family:'Lato',sans-serif;background:#faf9f7;color:#2c2c2c;min-height:100vh}
+header{
+  background: linear-gradient(135deg,#fff 0%,#fdf8ee 100%);
+  border-bottom:1px solid rgba(201,168,76,.12);
+  padding:18px 28px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:14px;
+  position:sticky;top:0;z-index:100;
+  backdrop-filter:blur(8px);
+}
+header h1{
+  font-family:'Playfair Display',serif;font-size:22px;
+  color:#1a1a1a;letter-spacing:.5px;
+}
+header h1 span{color:var(--gold);font-style:italic}
+header select,header button{
+  font-size:13px;font-family:'Lato',sans-serif;
+  padding:8px 16px;border-radius:20px;
+  border:1.5px solid var(--gold);
+  background:rgba(255,255,255,.7);
+  color:var(--gold);cursor:pointer;
+  transition:all .25s;outline:none;
+}
+header select:hover{border-color:var(--gold-dark);background:rgba(255,255,255,.95)}
+header select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.1)}
+header button{
+  background:var(--gold);color:#fff;
+  border-color:var(--gold);
+  font-weight:600;letter-spacing:.3px;
+}
+header button:hover{
+  background:var(--gold-dark);border-color:var(--gold-dark);
+  transform:translateY(-1px);box-shadow:0 4px 12px rgba(201,168,76,.25);
+}
+header button:active{transform:translateY(0)}
+.container{max-width:1100px;margin:0 auto;padding:24px 20px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:32px}
+.stat{background:#fff;border:1px solid #eee;border-radius:12px;padding:20px;text-align:center}
+.stat .num{font-family:'Playfair Display',serif;font-size:42px;color:var(--gold)}
+.stat .lbl{font-size:12px;text-transform:uppercase;letter-spacing:2px;color:#999;margin-top:4px}
+.stat.green .num{color:#2d8a4e}.stat.red .num{color:#c0392b}.stat.gray .num{color:#888}
+.actions{display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap}
+.actions button{font-family:'Lato',sans-serif;font-size:14px;padding:10px 20px;border:1px solid var(--gold);border-radius:8px;background:none;color:var(--gold);cursor:pointer;transition:all .2s}
+.actions button:hover,.actions button.active{background:var(--gold);color:#fff}
+.add-form{background:#fff;border:1px solid #eee;border-radius:12px;padding:24px;margin-bottom:24px;display:none}
+.add-form.show{display:block}
+.add-form h3{font-family:'Playfair Display',serif;font-size:18px;margin-bottom:16px}
+.add-form .row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.add-form input{padding:10px 14px;border:1px solid #ddd;border-radius:8px;font-family:'Lato',sans-serif;font-size:14px;flex:1;min-width:150px}
+.add-form input:focus{outline:none;border-color:var(--gold)}
+.add-form button[type=submit]{padding:10px 24px;background:var(--gold);color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer;transition:background .2s}
+.add-form button[type=submit]:hover{background:var(--gold-dark)}
+.add-form .cancel{background:none;color:var(--gold);border:1px solid var(--gold);padding:10px 16px;border-radius:8px;cursor:pointer;font-size:14px}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #eee}
+th,td{padding:14px 16px;text-align:left;font-size:14px}
+th{background:#faf9f7;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#999;font-weight:700}
+td{border-top:1px solid #f5f5f5;color:#444}
+td .slug{color:var(--gold);font-family:monospace;font-size:13px}
+td button{padding:4px 10px;border:1px solid #ddd;border-radius:6px;background:none;cursor:pointer;font-size:12px;margin-right:4px;transition:all .2s}
+td button:hover{border-color:var(--gold);color:var(--gold)}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:1px}
+.badge.ok{background:#e8f5e9;color:#2d8a4e}.badge.no{background:#fdecea;color:#c0392b}.badge.wait{background:#fff8e1;color:#b8860b}
+.copy-confirm{color:var(--gold);font-size:12px;margin-left:8px;opacity:0;transition:opacity .3s}
+.copy-confirm.shown{opacity:1}
+.empty{text-align:center;padding:48px;color:#999}
+@media(max-width:600px){
+  .container{padding:16px 12px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Kevin <span>&amp;</span> Claudia — Invitaciones</h1>
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <select id="guestSelect"><option value="">Ver invitación de…</option></select>
+    <button onclick="openGuest()">👁 Ver</button>
+    <button onclick="toggleForm()">+ Agregar invitado</button>
+  </div>
+</header>
+
+<div class="container">
+  <div class="stats">
+    <div class="stat"><div class="num" id="stTotal">0</div><div class="lbl">Total invitaciones</div></div>
+    <div class="stat green"><div class="num" id="stYes">0</div><div class="lbl">Confirmados ✅</div></div>
+    <div class="stat red"><div class="num" id="stNo">0</div><div class="lbl">No asistirán ❌</div></div>
+    <div class="stat gray"><div class="num" id="stPending">0</div><div class="lbl">Pendientes ⏳</div></div>
+    <div class="stat"><div class="num" id="stSeats">0</div><div class="lbl">Lugares totales</div></div>
+  </div>
+
+  <div class="actions">
+    <button class="active" onclick="filter('all',this)">Todos</button>
+    <button onclick="filter('si',this)">Confirmados</button>
+    <button onclick="filter('no',this)">No asisten</button>
+    <button onclick="filter('pending',this)">Pendientes</button>
+  </div>
+
+  <div class="add-form" id="addForm">
+    <h3 id="formTitle">Agregar invitado</h3>
+    <div class="row">
+      <input type="text" id="inpNombre" placeholder="Nombre" autocomplete="off">
+      <input type="text" id="inpNombreCompleto" placeholder="Nombre completo">
+    </div>
+    <div class="row">
+      <input type="text" id="inpSlug" placeholder="Slug (ej: diego)" style="flex:0.5">
+      <input type="number" id="inpLugares" placeholder="Lugares" value="1" min="1" style="flex:0.3">
+    </div>
+    <div class="row">
+      <input type="text" id="inpAcompanantes" placeholder="Nombres de acompañantes (separados por coma)">
+    </div>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button type="submit" onclick="saveGuest()">Guardar</button>
+      <button class="cancel" onclick="toggleForm()">Cancelar</button>
+    </div>
+    <input type="hidden" id="editSlug">
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>Invitado</th><th>Link</th><th>Estado</th><th>Lug.</th><th>Acompañantes</th><th>Última respuesta</th><th></th></tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+</div>
+
+<script>
+var allData=[],currentFilter='all';
+
+function loadAll(){
+  fetch('/api/invitados').then(function(r){return r.json()}).then(function(d){
+    allData=d.invitados||[];
+    render();
+    populateSelect();
+  });
+}
+function populateSelect(){
+  var sel=document.getElementById('guestSelect');
+  sel.innerHTML='<option value="">Ver invitación de…</option>';
+  allData.forEach(function(inv){
+    var opt=document.createElement('option');
+    opt.value=inv.slug;
+    opt.textContent=inv.nombre_completo||inv.nombre;
+    sel.appendChild(opt);
+  });
+}
+function openGuest(){
+  var sel=document.getElementById('guestSelect');
+  if(sel.value) window.open('/'+sel.value,'_blank');
+}
+function render(){
+  var data=allData;
+  if(currentFilter==='si')data=allData.filter(function(i){return i.confirmado===true});
+  else if(currentFilter==='no')data=allData.filter(function(i){return i.confirmado===false});
+  else if(currentFilter==='pending')data=allData.filter(function(i){return i.confirmado===null});
+
+  var yes=allData.filter(function(i){return i.confirmado===true}).length;
+  var no=allData.filter(function(i){return i.confirmado===false}).length;
+  var pending=allData.filter(function(i){return i.confirmado===null}).length;
+  var seats=allData.reduce(function(s,i){return s+((i.confirmado!==false)?(i.lugares||0):0)},0);
+
+  document.getElementById('stTotal').textContent=allData.length;
+  document.getElementById('stYes').textContent=yes;
+  document.getElementById('stNo').textContent=no;
+  document.getElementById('stPending').textContent=pending;
+  document.getElementById('stSeats').textContent=seats;
+
+  var tbody=document.getElementById('tableBody');
+  if(!data.length){tbody.innerHTML='<tr><td colspan="7" class="empty">No hay invitados. Agrega el primero con el botón de arriba.</td></tr>';return}
+
+  var rows=data.map(function(inv){
+    var status=inv.confirmado===true?'<span class="badge ok">✅ Asiste</span>'
+      :inv.confirmado===false?'<span class="badge no">❌ No asiste</span>'
+      :'<span class="badge wait">⏳ Pendiente</span>';
+    var updated=inv.actualizado?new Date(inv.actualizado).toLocaleDateString('es',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'—';
+    return '<tr>'+
+      '<td><strong>'+esc(inv.nombre)+'</strong><br><small style="color:#999">'+esc(inv.nombre_completo)+'</small></td>'+
+      '<td><span class="slug">/'+esc(inv.slug)+'</span> <button onclick="copyLink(\''+esc(inv.slug)+'\',this)" title="Copiar link">📋</button><span class="copy-confirm"></span></td>'+
+      '<td>'+status+'</td>'+
+      '<td>'+inv.lugares+'</td>'+
+      '<td><small style="color:#666">'+(inv.acompanantes_nombres||'—')+'</small></td>'+
+      '<td><small style="color:#999">'+updated+'</small></td>'+
+      '<td><button onclick="editGuest(\''+esc(inv.slug)+'\')">✏️</button><button onclick="deleteGuest(\''+esc(inv.slug)+'\')" style="color:#c0392b">🗑</button></td>'+
+      '</tr>';
+  });
+  tbody.innerHTML=rows.join('');
+}
+
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+function filter(type,btn){
+  currentFilter=type;
+  document.querySelectorAll('.actions button').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');render();
+}
+
+function toggleForm(){var f=document.getElementById('addForm');f.classList.toggle('show');if(!f.classList.contains('show'))resetForm()}
+function resetForm(){
+  document.getElementById('inpNombre').value='';document.getElementById('inpNombreCompleto').value='';
+  document.getElementById('inpSlug').value='';document.getElementById('inpLugares').value='1';
+  document.getElementById('inpAcompanantes').value='';document.getElementById('editSlug').value='';
+  document.getElementById('formTitle').textContent='Agregar invitado';
+}
+
+function saveGuest(){
+  var slug=document.getElementById('inpSlug').value.trim(),nombre=document.getElementById('inpNombre').value.trim();
+  if(!nombre)return alert('El nombre es obligatorio');if(!slug)slug=nombre.toLowerCase().replace(/\s+/g,'-');
+  var payload={slug:slug,nombre:nombre,nombre_completo:document.getElementById('inpNombreCompleto').value.trim()||nombre,lugares:parseInt(document.getElementById('inpLugares').value)||1,acompanantes_nombres:document.getElementById('inpAcompanantes').value.trim()};
+  var editSlug=document.getElementById('editSlug').value;
+  if(editSlug){
+    fetch('/api/invitados/'+editSlug,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(function(r){return r.json()}).then(function(d){if(d.error)return alert(d.error);loadAll();toggleForm()});
+  }else{
+    fetch('/api/invitados',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(function(r){return r.json()}).then(function(d){if(d.error)return alert(d.error);loadAll();toggleForm()});
+  }
+}
+
+function editGuest(slug){
+  var inv=allData.find(function(i){return i.slug===slug});if(!inv)return;
+  document.getElementById('editSlug').value=inv.slug;document.getElementById('inpNombre').value=inv.nombre;
+  document.getElementById('inpNombreCompleto').value=inv.nombre_completo;document.getElementById('inpSlug').value=inv.slug;
+  document.getElementById('inpLugares').value=inv.lugares;document.getElementById('inpAcompanantes').value=inv.acompanantes_nombres||'';
+  document.getElementById('formTitle').textContent='Editar invitado';document.getElementById('addForm').classList.add('show');
+}
+
+function deleteGuest(slug){
+  var inv=allData.find(function(i){return i.slug===slug}),name=inv?inv.nombre:slug;
+  if(!confirm('¿Eliminar a '+name+'?'))return;
+  fetch('/api/invitados/'+slug,{method:'DELETE'}).then(function(){loadAll()});
+}
+
+function copyLink(slug,btn){
+  var link=window.location.origin+'/'+slug;
+  navigator.clipboard.writeText(link).then(function(){var s=btn.nextElementSibling;s.textContent='Copiado!';s.classList.add('shown');setTimeout(function(){s.classList.remove('shown')},1500)}).catch(function(){prompt('Copia este link:',link)});
+}
+
+loadAll();
+</script>
+</body>
+</html>

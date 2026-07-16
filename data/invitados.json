@@ -1,0 +1,15 @@
+{
+  "invitados": [
+    {
+      "slug": "cristina",
+      "nombre": "Cristina y Nahuel",
+      "nombre_completo": "Cristina y Nahuel",
+      "lugares": 3,
+      "acompanantes_nombres": "Nahuel,Nehemias",
+      "confirmado": null,
+      "acompanantes": 0,
+      "mensaje": "",
+      "actualizado": ""
+    }
+  ]
+}
