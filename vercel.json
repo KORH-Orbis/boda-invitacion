@@ -1,5 +1,7 @@
 {
   "rewrites": [
+    { "source": "/api/invitados/:slug/rsvp", "destination": "/api/rsvp?slug=:slug" },
+    { "source": "/api/invitados/:slug", "destination": "/api/invitado?slug=:slug" },
     { "source": "/((?!api/|data/|invitacion\\.html|index\\.html)[^/.]+)", "destination": "/invitacion.html" }
   ]
 }
