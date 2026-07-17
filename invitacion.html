@@ -886,10 +886,10 @@ renderCalendar();
 function personalizeRSVP() {
   var gi = document.getElementById('guestsInfo');
   if (window.INVITADO && window.INVITADO.lugares) {
-    var c = window.INVITADO.lugares, n = window.INVITADO.nombre_completo || window.INVITADO.nombre;
-    gi.innerHTML = '🎟️ Invitación para '+c+' <span style="color:var(--gold)">♡</span> ' + n;
+    var c = window.INVITADO.lugares;
+    gi.textContent = '🎟️ Invitación para '+c;
     var ni = document.querySelector('#rsvpForm [name="name"]');
-    if (ni) { ni.value = n; ni.readOnly = true; ni.style.opacity = '0.8'; ni.style.cursor = 'default'; }
+    if (ni) { ni.value = c===1 ? '' : (window.INVITADO.nombre_completo || window.INVITADO.nombre); ni.readOnly = c!==1; ni.style.opacity = c===1 ? '1' : '0.8'; ni.style.cursor = c===1 ? '' : 'default'; }
   } else { gi.textContent = '🎟️ Los esperamos con mucho amor'; }
 }
 (function(){
