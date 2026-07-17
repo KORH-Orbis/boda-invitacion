@@ -716,8 +716,8 @@ var sections = document.querySelectorAll('section');
 var total = sections.length;
 var currentIdx = 0;
 
-// Entry choice overlay
-try {
+// ========== ENTRY OVERLAY ==========
+
 var entryOverlay = document.getElementById('entryOverlay');
 var currentSlug = (new URLSearchParams(location.search)).get('slug') || location.pathname.replace(/^\//, '').replace(/\/$/, '').split('?')[0];
 var isStandalone = window.matchMedia('(display-mode:standalone)').matches || window.navigator.standalone;
@@ -744,6 +744,7 @@ function showAppMsg() {
     if (validSlug) localStorage.setItem('appLastSlug', currentSlug);
   } catch(e) { console.error('showAppMsg error:', e); }
 }
+window.showAppMsg = showAppMsg;
 
 function showWeb() {
   try {
@@ -752,9 +753,15 @@ function showWeb() {
     startMusic();
   } catch(e) { console.error('showWeb error:', e); }
 }
-window.showAppMsg = showAppMsg;
 window.showWeb = showWeb;
 
+function goToInvitation() {
+  var s = document.getElementById('slugInput').value.trim().toLowerCase().replace(/\s+/g,'-');
+  if (!s) return;
+  window.location.href = (window.location.origin + '/' + s);
+}
+
+try {
 if (isStandalone && validSlug) {
   localStorage.setItem('appInstalled','1');
   showWeb();
@@ -770,12 +777,6 @@ if (isStandalone && validSlug) {
 document.getElementById('entryBtnApp').addEventListener('click', showAppMsg);
 document.getElementById('entryBtnWeb').addEventListener('click', showWeb);
 document.getElementById('entryBtnGo').addEventListener('click', goToInvitation);
-
-function goToInvitation() {
-  var s = document.getElementById('slugInput').value.trim().toLowerCase().replace(/\s+/g,'-');
-  if (!s) return;
-  window.location.href = (window.location.origin + '/' + s);
-}
 } catch(e) { console.error('entry init error:', e); }
 
 function updateArrows() {
