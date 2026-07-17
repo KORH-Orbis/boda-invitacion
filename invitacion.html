@@ -277,6 +277,9 @@ section h2::after{
 .calendar-grid .day.today{border:1px solid var(--gold);color:var(--gold)}
 .calendar-grid .day.empty{visibility:hidden}
 .calendar-note{margin-top:20px;font-weight:300;font-size:15px;color:var(--text-muted);letter-spacing:1px}
+@keyframes calPulse{0%{transform:scale(1);box-shadow:0 0 0 0 rgba(201,168,76,.6)}50%{transform:scale(1.1);box-shadow:0 0 20px 8px rgba(201,168,76,.3)}100%{transform:scale(1);box-shadow:0 0 0 0 rgba(201,168,76,.6)}}
+.calendar-grid .day.highlight{background:var(--gold);color:#fff;font-weight:700;animation:calPulse 2s ease-in-out 3;position:relative;z-index:1}
+.calendar-grid .day.highlight::after{content:'💍';position:absolute;top:-8px;right:-8px;font-size:14px;animation:calPulse 2s ease-in-out 3}
 
 /* Story */
 .story-content{max-width:650px;margin:0 auto;font-weight:300;font-size:18px;line-height:1.8;color:var(--text-story)}
@@ -466,7 +469,7 @@ footer{
     <div class="inner">
       <div class="reveal">
         <h2>Nuestro Calendario</h2>
-        <p style="font-weight:300;color:var(--text-muted);margin-bottom:32px;font-size:16px">Marca la fecha — pronto tendremos el día</p>
+        <p style="font-weight:300;color:var(--text-muted);margin-bottom:32px;font-size:16px">Esta es nuestra gran fecha y queremos que estés con nosotros</p>
         <div class="calendar-header">
           <button id="calPrev">‹</button>
           <span class="month-year" id="calMonthYear"></span>
@@ -586,7 +589,7 @@ footer{
           </div>
           <div class="detail-card map-card">
             <div class="detail-icon" style="font-size:22px">🗺️</div><h3>Ubicación</h3>
-            <iframe src="https://www.openstreetmap.org/export/embed.html?bbox=-55.9432,-27.3784,-55.9382,-27.3734&amp;layer=mapnik&amp;marker=-27.3759,-55.9407" title="Mapa del evento" loading="lazy"></iframe>
+            <iframe src="https://maps.google.com/maps?q=Av.+Jauretche+3336+Posadas+Misiones&output=embed" title="Mapa del evento" loading="lazy" style="width:100%;height:250px;border:0;border-radius:12px"></iframe>
           </div>
         </div>
       </div>
@@ -600,11 +603,11 @@ footer{
         <h2>Comparte tus Fotos</h2>
         <p style="font-weight:300;color:var(--text-muted);margin-bottom:32px;font-size:16px">Queremos ver cada momento a través de tus ojos</p>
         <div class="qr-container">
-          <p class="qr-label">Este QR estará disponible en la ceremonia para que subas tus fotos</p>
+          <p class="qr-label" style="font-size:13px;letter-spacing:2px;margin-bottom:12px">ESTE QR ESTARÁ DISPONIBLE EN LA CEREMONIA</p>
           <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://photos.app.goo.gl/whN5m2qcn8dthy7HA" alt="Código QR para subir fotos">
           <p>Sube todas las fotos y videos<br>que tomes durante la celebración.<br><strong>No queremos perdernos ningún momento</strong></p>
         </div>
-        <p class="qr-save-text">Guarda este código QR para compartir tus recuerdos</p>
+        <p class="qr-save-text">Este será nuestro álbum compartido para recordarlo</p>
         <a href="https://photos.app.goo.gl/whN5m2qcn8dthy7HA" target="_blank" rel="noopener" style="display:inline-block;margin-top:20px;padding:14px 32px;background:var(--gold);color:#fff;border-radius:8px;text-decoration:none;font-family:'Lato',sans-serif;font-size:15px;letter-spacing:1px;transition:opacity .3s">📷 Abrir álbum de fotos</a>
       </div>
     </div>
@@ -636,6 +639,11 @@ footer{
   </section>
 
 </div><!-- /sectionContainer -->
+
+<div id="lightbox" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);z-index:10000;cursor:pointer;align-items:center;justify-content:center">
+  <button id="lightboxClose" style="position:absolute;top:20px;right:20px;background:none;border:2px solid #fff;color:#fff;width:44px;height:44px;border-radius:50%;font-size:24px;cursor:pointer;z-index:10001;display:flex;align-items:center;justify-content:center;line-height:1">✕</button>
+  <img id="lightboxImg" style="max-width:90%;max-height:85vh;border-radius:8px;pointer-events:none" alt="">
+</div>
 
 <div id="arrowUp" onclick="goToSection(currentIdx-1)" style="display:none">↑</div>
 <div id="arrowDown" onclick="goToSection(currentIdx+1)">↓</div>
@@ -847,6 +855,8 @@ function goToSlide(i) { currentSlide=i; if(currentSlide<0)currentSlide=slides.le
 goToSlide(0);
 document.getElementById('galleryPrev').addEventListener('click',function(){goToSlide(currentSlide-1)});
 document.getElementById('galleryNext').addEventListener('click',function(){goToSlide(currentSlide+1)});
+slides.forEach(function(img){ img.style.cursor='pointer'; img.addEventListener('click',function(){ document.getElementById('lightboxImg').src=this.src; document.getElementById('lightbox').style.display='flex'; }); });
+document.getElementById('lightbox').addEventListener('click',function(e){ if(e.target===this||e.target.id==='lightboxClose') this.style.display='none'; });
 
 // ========== CALENDAR ==========
 var calDate = new Date(2027,1,1), today = new Date(), selectedDay = new Date(2027,1,26);
@@ -861,7 +871,7 @@ function renderCalendar() {
   for (var d=1;d<=dim;d++) {
     var isT = y===today.getFullYear()&&m===today.getMonth()&&d===today.getDate();
     var isS = selectedDay&&y===selectedDay.getFullYear()&&m===selectedDay.getMonth()&&d===selectedDay.getDate();
-    var cls='day'; if(isT)cls+=' today'; if(isS)cls+=' today';
+    var cls='day'; if(isT)cls+=' today'; if(isS)cls+=' highlight';
     html+='<div class="'+cls+'" data-day="'+d+'">'+d+'</div>';
   }
   var grid = document.getElementById('calGrid');
@@ -876,12 +886,10 @@ renderCalendar();
 function personalizeRSVP() {
   var gi = document.getElementById('guestsInfo');
   if (window.INVITADO && window.INVITADO.lugares) {
-    var c = window.INVITADO.lugares;
-    gi.textContent = c===1 ? '🎟️ Invitación individual' :
-                     c===2 ? '🎟️ Invitación para 2' :
-                     '🎟️ Invitación para '+c;
+    var c = window.INVITADO.lugares, n = window.INVITADO.nombre_completo || window.INVITADO.nombre;
+    gi.innerHTML = '🎟️ Invitación para '+c+' <span style="color:var(--gold)">♡</span> ' + n;
     var ni = document.querySelector('#rsvpForm [name="name"]');
-    if (ni) { ni.value = ''; ni.placeholder = 'Tu nombre completo'; ni.readOnly = false; }
+    if (ni) { ni.value = n; ni.readOnly = true; ni.style.opacity = '0.8'; ni.style.cursor = 'default'; }
   } else { gi.textContent = '🎟️ Los esperamos con mucho amor'; }
 }
 (function(){
