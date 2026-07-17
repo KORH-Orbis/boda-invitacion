@@ -726,6 +726,8 @@ if (isStandalone && validSlug) {
   entryOverlay.style.display = 'none';
   startMusic();
 } else if (isStandalone && !validSlug) {
+  var lastSlug = localStorage.getItem('appLastSlug');
+  if (lastSlug) { localStorage.removeItem('appLastSlug'); window.location.href = '/' + lastSlug; return; }
   document.getElementById('entrySub').textContent = 'App instalada 🎉';
   document.getElementById('entryChoiceContent').style.display = 'none';
   document.getElementById('entryInput').style.display = 'flex';
@@ -735,6 +737,7 @@ function entryChoice(mode) {
   if (mode === 'app') {
     document.getElementById('entryChoiceContent').style.display = 'none';
     document.getElementById('entryAppMsg').style.display = 'block';
+    if (validSlug) localStorage.setItem('appLastSlug', currentSlug);
     if (typeof installPrompt !== 'undefined' && installPrompt) { installPrompt.prompt(); installPrompt.userChoice.then(function(){ installPrompt = null; }); }
   } else {
     entryOverlay.style.display = 'none';
