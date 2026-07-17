@@ -5,11 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Kevin &amp; Claudia — Nuestra Boda</title>
 <meta name="theme-color" content="#1a1a2e">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="K&C Boda">
-<link rel="manifest" href="/manifest.json">
-<link rel="apple-touch-icon" href="/icons/icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&amp;family=Lato:wght@300;400;700&amp;display=swap" rel="stylesheet">
 <script>
 (function(){
@@ -660,7 +655,6 @@ footer{
 
 <button id="darkToggle" title="Modo oscuro">☀️</button>
 <button id="musicToggle" title="Reproducir música">♪</button>
-<button id="installBtn" title="Instalar app" style="display:none;position:fixed;bottom:160px;right:30px;width:44px;height:44px;border-radius:50%;border:2px solid var(--gold);background:var(--bg-section);color:var(--gold);font-size:20px;cursor:pointer;z-index:1000;display:none;align-items:center;justify-content:center">⬇</button>
 <audio id="bgMusic" preload="auto" loop src="/data/wedding_music.mp3"></audio>
 
 <script>
@@ -943,10 +937,6 @@ musicBtn.addEventListener('click',function(){
   else { audio.pause(); musicBtn.classList.remove('playing'); musicBtn.textContent='♪'; isPlaying=false; }
 });
 startMusic();
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
-var installBtn = document.getElementById('installBtn'), installPrompt = null;
-window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); installPrompt=e; installBtn.style.display='flex'; });
-installBtn.addEventListener('click',function(){ if (!installPrompt) return; installPrompt.prompt(); installPrompt.userChoice.then(function(){ installPrompt=null; installBtn.style.display='none'; }); });
 </script>
 </body>
 </html>
