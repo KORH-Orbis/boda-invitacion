@@ -724,6 +724,7 @@ var validSlug = currentSlug && currentSlug !== 'invitacion.html' && currentSlug 
 
 if (isStandalone && validSlug) {
   entryOverlay.style.display = 'none';
+  startMusic();
 } else if (isStandalone && !validSlug) {
   document.getElementById('entrySub').textContent = 'App instalada 🎉';
   document.getElementById('entryChoiceContent').style.display = 'none';
@@ -737,6 +738,7 @@ function entryChoice(mode) {
   } else {
     entryOverlay.style.display = 'none';
     document.getElementById('arrowDown').style.display = 'flex';
+    startMusic();
   }
 }
 function goToInvitation() {
@@ -1002,15 +1004,17 @@ updateDarkUI();
 darkToggle.addEventListener('click',function(){document.body.classList.toggle('dark');updateDarkUI()});
 
 // ========== MUSIC ==========
-var audio = document.getElementById('bgMusic'), musicBtn = document.getElementById('musicToggle'), isPlaying = true;
-musicBtn.textContent = '♫'; musicBtn.classList.add('playing');
+var audio = document.getElementById('bgMusic'), musicBtn = document.getElementById('musicToggle'), isPlaying = false;
+musicBtn.textContent = '♪';
 audio.volume = 0.5;
-audio.play().then(function(){ isPlaying = true; }).catch(function(){
-  isPlaying = false; musicBtn.classList.remove('playing'); musicBtn.textContent = '♪';
-  function unlock(e) { e.target.removeEventListener('touchstart',unlock); e.target.removeEventListener('click',unlock); audio.play(); }
-  document.addEventListener('touchstart',unlock);
-  document.addEventListener('click',unlock);
-});
+function startMusic() {
+  if (isPlaying) return;
+  audio.play().then(function(){ isPlaying = true; musicBtn.classList.add('playing'); musicBtn.textContent='♫'; }).catch(function(){
+    function unlock(e) { e.target.removeEventListener('touchstart',unlock); e.target.removeEventListener('click',unlock); audio.play().then(function(){ isPlaying = true; musicBtn.classList.add('playing'); musicBtn.textContent='♫'; }); }
+    document.addEventListener('touchstart',unlock);
+    document.addEventListener('click',unlock);
+  });
+}
 musicBtn.addEventListener('click',function(){
   if (audio.paused) { audio.play(); musicBtn.classList.add('playing'); musicBtn.textContent='♫'; isPlaying=true; }
   else { audio.pause(); musicBtn.classList.remove('playing'); musicBtn.textContent='♪'; isPlaying=false; }
