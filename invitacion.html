@@ -154,26 +154,6 @@ section h2::after{
   margin:14px auto 0;
 }
 
-/* Entry overlay */
-#entryOverlay{position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);display:flex;align-items:center;justify-content:center}
-.entry-card{background:rgba(255,255,255,.06);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:48px 40px;max-width:420px;width:90%;text-align:center}
-.entry-hearts{color:var(--gold);font-size:28px;letter-spacing:12px;margin-bottom:8px}
-.entry-title{font-family:'Playfair Display',serif;font-size:32px;color:#fff;margin-bottom:4px}
-.entry-sub{color:rgba(255,255,255,.5);font-size:14px;margin-bottom:24px;font-style:italic}
-.entry-question{color:rgba(255,255,255,.7);font-size:16px;margin-bottom:20px}
-.entry-buttons{display:flex;flex-direction:column;gap:12px}
-.entry-buttons button{padding:16px;border-radius:14px;border:1.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:#fff;font-size:16px;cursor:pointer;transition:all .25s;font-family:'Lato',sans-serif;width:100%}
-.entry-buttons button:hover{border-color:var(--gold);background:rgba(201,168,76,.15);transform:translateY(-2px)}
-.entry-buttons button:active{transform:translateY(0)}
-#entryBtnApp{border-color:var(--gold);background:rgba(201,168,76,.12)}
-#entryBtnApp:hover{background:rgba(201,168,76,.25)}
-.entry-note{color:rgba(255,255,255,.4);font-size:12px;margin-top:16px;min-height:18px}
-.entry-input{display:flex;gap:10px;max-width:320px;margin:0 auto}
-.entry-input input{flex:1;padding:14px 16px;border-radius:12px;border:1.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:#fff;font-size:15px;font-family:'Lato',sans-serif;outline:none;transition:border-color .25s}
-.entry-input input:focus{border-color:var(--gold)}
-.entry-input input::placeholder{color:rgba(255,255,255,.35)}
-.entry-input button{padding:14px 20px;border-radius:12px;border:none;background:var(--gold);color:#fff;font-size:15px;cursor:pointer;font-family:'Lato',sans-serif;white-space:nowrap}
-
 /* Nav arrows - fixed */
 #arrowDown,#arrowUp{
   position:fixed;left:50%;transform:translateX(-50%);
@@ -456,32 +436,6 @@ footer{
 <canvas id="particles"></canvas>
 <canvas id="confettiCanvas"></canvas>
 
-<div id="entryOverlay">
-  <div class="entry-card" id="entryCard">
-    <div class="entry-hearts">♡ ♡ ♡</div>
-    <h1 class="entry-title" id="entryTitle">Kevin <span class="amp">&amp;</span> Claudia</h1>
-    <p class="entry-sub" id="entrySub">Tenés una invitación pendiente</p>
-    <div id="entryChoiceContent">
-      <p class="entry-question">¿Cómo querés verla?</p>
-      <div class="entry-buttons" id="entryButtons">
-        <button id="entryBtnApp" onclick="showAppMsg()">📱 Como App</button>
-        <button id="entryBtnWeb" onclick="showWeb()">🌐 Desde el navegador</button>
-      </div>
-    </div>
-    <div id="entryAppMsg" style="display:none">
-      <p style="color:#fff;font-size:18px;margin:20px 0">📲</p>
-      <p style="color:#fff;font-size:16px;line-height:1.6"><strong>Proseguí desde la App instalada</strong></p>
-      <p style="color:var(--gold);font-size:14px;margin-top:8px">K&amp;C Boda</p>
-      <p id="appMsgNote" style="color:rgba(255,255,255,.5);font-size:13px;margin-top:20px"></p>
-    </div>
-    <div class="entry-input" id="entryInput" style="display:none">
-      <input type="text" id="slugInput" placeholder="Tu código de invitación" autocomplete="off">
-      <button id="entryBtnGo" onclick="goToInvitation()">Entrar →</button>
-    </div>
-    <p class="entry-note" id="entryNote"></p>
-  </div>
-</div>
-
 <div id="sectionContainer">
 
   <!-- Hero -->
@@ -715,69 +669,6 @@ var container = document.getElementById('sectionContainer');
 var sections = document.querySelectorAll('section');
 var total = sections.length;
 var currentIdx = 0;
-
-// ========== ENTRY OVERLAY ==========
-
-var entryOverlay = document.getElementById('entryOverlay');
-var currentSlug = (new URLSearchParams(location.search)).get('slug') || location.pathname.replace(/^\//, '').replace(/\/$/, '').split('?')[0];
-var isStandalone = window.matchMedia('(display-mode:standalone)').matches || window.navigator.standalone;
-var validSlug = currentSlug && currentSlug !== 'invitacion.html' && currentSlug !== 'index.html' && !currentSlug.includes('.');
-
-function showAppMsg() {
-  try {
-    document.getElementById('entryChoiceContent').style.display = 'none';
-    var msg = document.getElementById('entryAppMsg');
-    msg.style.display = 'block';
-    var note = document.getElementById('appMsgNote');
-    if (localStorage.getItem('appInstalled')) {
-      note.textContent = '✅ Ya está instalada. Abrila desde tu pantalla de inicio.';
-    } else {
-      note.innerHTML = '💡 Abrí el menú <strong>⋮</strong> del navegador y buscá <strong>"Instalar app"</strong>';
-      if (typeof installPrompt !== 'undefined' && installPrompt) {
-        installPrompt.prompt();
-        installPrompt.userChoice.then(function(r){
-          if (r.outcome === 'accepted') localStorage.setItem('appInstalled','1');
-          installPrompt = null;
-        });
-      }
-    }
-    if (validSlug) localStorage.setItem('appLastSlug', currentSlug);
-  } catch(e) { console.error('showAppMsg error:', e); }
-}
-window.showAppMsg = showAppMsg;
-
-function showWeb() {
-  try {
-    entryOverlay.style.display = 'none';
-    document.getElementById('arrowDown').style.display = 'flex';
-    startMusic();
-  } catch(e) { console.error('showWeb error:', e); }
-}
-window.showWeb = showWeb;
-
-function goToInvitation() {
-  var s = document.getElementById('slugInput').value.trim().toLowerCase().replace(/\s+/g,'-');
-  if (!s) return;
-  window.location.href = (window.location.origin + '/' + s);
-}
-
-try {
-if (isStandalone && validSlug) {
-  localStorage.setItem('appInstalled','1');
-  showWeb();
-} else if (isStandalone && !validSlug) {
-  var lastSlug = localStorage.getItem('appLastSlug');
-  if (lastSlug) { localStorage.removeItem('appLastSlug'); window.location.href = '/' + lastSlug; return; }
-  document.getElementById('entrySub').textContent = 'App instalada 🎉';
-  document.getElementById('entryChoiceContent').style.display = 'none';
-  document.getElementById('entryInput').style.display = 'flex';
-  document.getElementById('slugInput').addEventListener('keydown',function(e){if(e.key==='Enter')goToInvitation()});
-}
-
-document.getElementById('entryBtnApp').addEventListener('click', showAppMsg);
-document.getElementById('entryBtnWeb').addEventListener('click', showWeb);
-document.getElementById('entryBtnGo').addEventListener('click', goToInvitation);
-} catch(e) { console.error('entry init error:', e); }
 
 function updateArrows() {
   var sec = sections[currentIdx];
@@ -1051,6 +942,7 @@ musicBtn.addEventListener('click',function(){
   if (audio.paused) { audio.play(); musicBtn.classList.add('playing'); musicBtn.textContent='♫'; isPlaying=true; }
   else { audio.pause(); musicBtn.classList.remove('playing'); musicBtn.textContent='♪'; isPlaying=false; }
 });
+startMusic();
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
 var installBtn = document.getElementById('installBtn'), installPrompt = null;
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); installPrompt=e; installBtn.style.display='flex'; });
