@@ -464,19 +464,19 @@ footer{
     <div id="entryChoiceContent">
       <p class="entry-question">¿Cómo querés verla?</p>
       <div class="entry-buttons" id="entryButtons">
-        <button onclick="entryChoice('app')" id="entryBtnApp">📱 Como App</button>
-        <button onclick="entryChoice('web')" id="entryBtnWeb">🌐 Desde el navegador</button>
+        <button id="entryBtnApp">📱 Como App</button>
+        <button id="entryBtnWeb">🌐 Desde el navegador</button>
       </div>
     </div>
     <div id="entryAppMsg" style="display:none">
-      <p style="color:rgba(255,255,255,.7);font-size:18px;margin:20px 0">📲</p>
+      <p style="color:#fff;font-size:18px;margin:20px 0">📲</p>
       <p style="color:#fff;font-size:16px;line-height:1.6"><strong>Proseguí desde la App instalada</strong></p>
       <p style="color:var(--gold);font-size:14px;margin-top:8px">K&amp;C Boda</p>
-      <p style="color:rgba(255,255,255,.4);font-size:13px;margin-top:20px">Si aún no la instalaste,<br>buscá "Instalar app" en el menú del navegador</p>
+      <p id="appMsgNote" style="color:rgba(255,255,255,.5);font-size:13px;margin-top:20px"></p>
     </div>
     <div class="entry-input" id="entryInput" style="display:none">
       <input type="text" id="slugInput" placeholder="Tu código de invitación" autocomplete="off">
-      <button onclick="goToInvitation()" id="entryBtnGo">Entrar →</button>
+      <button id="entryBtnGo">Entrar →</button>
     </div>
     <p class="entry-note" id="entryNote"></p>
   </div>
@@ -722,10 +722,35 @@ var currentSlug = (new URLSearchParams(location.search)).get('slug') || location
 var isStandalone = window.matchMedia('(display-mode:standalone)').matches || window.navigator.standalone;
 var validSlug = currentSlug && currentSlug !== 'invitacion.html' && currentSlug !== 'index.html' && !currentSlug.includes('.');
 
+function showAppMsg() {
+  document.getElementById('entryChoiceContent').style.display = 'none';
+  var msg = document.getElementById('entryAppMsg');
+  msg.style.display = 'block';
+  var note = document.getElementById('appMsgNote');
+  if (localStorage.getItem('appInstalled')) {
+    note.textContent = '✅ Ya está instalada. Abrila desde tu pantalla de inicio.';
+  } else {
+    note.innerHTML = '💡 Abrí el menú <strong>⋮</strong> del navegador y buscá <strong>"Instalar app"</strong>';
+    if (typeof installPrompt !== 'undefined' && installPrompt) {
+      installPrompt.prompt();
+      installPrompt.userChoice.then(function(r){
+        if (r.outcome === 'accepted') localStorage.setItem('appInstalled','1');
+        installPrompt = null;
+      });
+    }
+  }
+  if (validSlug) localStorage.setItem('appLastSlug', currentSlug);
+}
+
+function showWeb() {
+  entryOverlay.style.display = 'none';
+  document.getElementById('arrowDown').style.display = 'flex';
+  startMusic();
+}
+
 if (isStandalone && validSlug) {
   localStorage.setItem('appInstalled','1');
-  entryOverlay.style.display = 'none';
-  startMusic();
+  showWeb();
 } else if (isStandalone && !validSlug) {
   var lastSlug = localStorage.getItem('appLastSlug');
   if (lastSlug) { localStorage.removeItem('appLastSlug'); window.location.href = '/' + lastSlug; return; }
@@ -734,30 +759,11 @@ if (isStandalone && validSlug) {
   document.getElementById('entryInput').style.display = 'flex';
   document.getElementById('slugInput').addEventListener('keydown',function(e){if(e.key==='Enter')goToInvitation()});
 }
-function entryChoice(mode) {
-  if (mode === 'app') {
-    document.getElementById('entryChoiceContent').style.display = 'none';
-    document.getElementById('entryAppMsg').style.display = 'block';
-    var note = document.getElementById('entryNote');
-    if (localStorage.getItem('appInstalled')) {
-      note.textContent = '✅ Ya la tenés instalada. Abrila desde tu pantalla de inicio.';
-    } else {
-      note.innerHTML = '💡 Abrí el menú ⋮ y buscá <strong>"Instalar app"</strong>';
-    }
-    if (validSlug) localStorage.setItem('appLastSlug', currentSlug);
-    if (typeof installPrompt !== 'undefined' && installPrompt && !localStorage.getItem('appInstalled')) {
-      installPrompt.prompt();
-      installPrompt.userChoice.then(function(r){
-        if (r.outcome === 'accepted') localStorage.setItem('appInstalled','1');
-        installPrompt = null;
-      });
-    }
-  } else {
-    entryOverlay.style.display = 'none';
-    document.getElementById('arrowDown').style.display = 'flex';
-    startMusic();
-  }
-}
+
+document.getElementById('entryBtnApp').addEventListener('click', showAppMsg);
+document.getElementById('entryBtnWeb').addEventListener('click', showWeb);
+document.getElementById('entryBtnGo').addEventListener('click', goToInvitation);
+
 function goToInvitation() {
   var s = document.getElementById('slugInput').value.trim().toLowerCase().replace(/\s+/g,'-');
   if (!s) return;
