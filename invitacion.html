@@ -622,7 +622,7 @@ footer{
             <option value="si">¡Sí, asistiré!</option>
             <option value="no">Lo siento, no podré asistir</option>
           </select>
-          <p id="guestsInfo" style="font-weight:300;color:var(--text-muted);font-size:14px;text-align:left;padding:4px 0"></p>
+          <p id="guestsInfo" style="font-family:'Playfair Display',serif;font-size:20px;color:var(--gold);text-align:center;padding:12px 0;font-weight:400"></p>
           <textarea name="message" placeholder="Déjanos un mensaje especial..."></textarea>
           <button type="submit">Confirmar</button>
         </form>
@@ -876,12 +876,12 @@ renderCalendar();
 function personalizeRSVP() {
   var gi = document.getElementById('guestsInfo');
   if (window.INVITADO && window.INVITADO.lugares) {
-    var c = window.INVITADO.lugares, n = window.INVITADO.nombre_completo || window.INVITADO.nombre;
-    gi.textContent = c===1 ? '🎟️ Invitación individual para: '+n :
-                     c===2 ? '🎟️ Invitación para 2 personas: '+n :
-                     '🎟️ Invitación para '+c+' personas: '+n;
+    var c = window.INVITADO.lugares;
+    gi.textContent = c===1 ? '🎟️ Invitación individual' :
+                     c===2 ? '🎟️ Invitación para 2' :
+                     '🎟️ Invitación para '+c;
     var ni = document.querySelector('#rsvpForm [name="name"]');
-    if (ni) { ni.value = n; ni.readOnly = true; }
+    if (ni) { ni.value = ''; ni.placeholder = 'Tu nombre completo'; ni.readOnly = false; }
   } else { gi.textContent = '🎟️ Los esperamos con mucho amor'; }
 }
 (function(){
