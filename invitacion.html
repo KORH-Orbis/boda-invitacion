@@ -723,30 +723,36 @@ var isStandalone = window.matchMedia('(display-mode:standalone)').matches || win
 var validSlug = currentSlug && currentSlug !== 'invitacion.html' && currentSlug !== 'index.html' && !currentSlug.includes('.');
 
 function showAppMsg() {
-  document.getElementById('entryChoiceContent').style.display = 'none';
-  var msg = document.getElementById('entryAppMsg');
-  msg.style.display = 'block';
-  var note = document.getElementById('appMsgNote');
-  if (localStorage.getItem('appInstalled')) {
-    note.textContent = '✅ Ya está instalada. Abrila desde tu pantalla de inicio.';
-  } else {
-    note.innerHTML = '💡 Abrí el menú <strong>⋮</strong> del navegador y buscá <strong>"Instalar app"</strong>';
-    if (typeof installPrompt !== 'undefined' && installPrompt) {
-      installPrompt.prompt();
-      installPrompt.userChoice.then(function(r){
-        if (r.outcome === 'accepted') localStorage.setItem('appInstalled','1');
-        installPrompt = null;
-      });
+  try {
+    document.getElementById('entryChoiceContent').style.display = 'none';
+    var msg = document.getElementById('entryAppMsg');
+    msg.style.display = 'block';
+    var note = document.getElementById('appMsgNote');
+    if (localStorage.getItem('appInstalled')) {
+      note.textContent = '✅ Ya está instalada. Abrila desde tu pantalla de inicio.';
+    } else {
+      note.innerHTML = '💡 Abrí el menú <strong>⋮</strong> del navegador y buscá <strong>"Instalar app"</strong>';
+      if (typeof installPrompt !== 'undefined' && installPrompt) {
+        installPrompt.prompt();
+        installPrompt.userChoice.then(function(r){
+          if (r.outcome === 'accepted') localStorage.setItem('appInstalled','1');
+          installPrompt = null;
+        });
+      }
     }
-  }
-  if (validSlug) localStorage.setItem('appLastSlug', currentSlug);
+    if (validSlug) localStorage.setItem('appLastSlug', currentSlug);
+  } catch(e) { console.error('showAppMsg error:', e); }
 }
 
 function showWeb() {
-  entryOverlay.style.display = 'none';
-  document.getElementById('arrowDown').style.display = 'flex';
-  startMusic();
+  try {
+    entryOverlay.style.display = 'none';
+    document.getElementById('arrowDown').style.display = 'flex';
+    startMusic();
+  } catch(e) { console.error('showWeb error:', e); }
 }
+window.showAppMsg = showAppMsg;
+window.showWeb = showWeb;
 
 if (isStandalone && validSlug) {
   localStorage.setItem('appInstalled','1');
