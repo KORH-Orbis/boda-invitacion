@@ -735,6 +735,7 @@ function entryChoice(mode) {
   if (mode === 'app') {
     document.getElementById('entryChoiceContent').style.display = 'none';
     document.getElementById('entryAppMsg').style.display = 'block';
+    if (typeof installPrompt !== 'undefined' && installPrompt) { installPrompt.prompt(); installPrompt.userChoice.then(function(){ installPrompt = null; }); }
   } else {
     entryOverlay.style.display = 'none';
     document.getElementById('arrowDown').style.display = 'flex';
