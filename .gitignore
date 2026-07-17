@@ -1,3 +1,4 @@
 node_modules/
 data/invitados.json
 .vercel
+.env*

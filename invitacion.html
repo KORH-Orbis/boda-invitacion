@@ -154,6 +154,21 @@ section h2::after{
   margin:14px auto 0;
 }
 
+/* Entry overlay */
+#entryOverlay{position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);display:flex;align-items:center;justify-content:center}
+.entry-card{background:rgba(255,255,255,.06);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:48px 40px;max-width:420px;width:90%;text-align:center}
+.entry-hearts{color:var(--gold);font-size:28px;letter-spacing:12px;margin-bottom:8px}
+.entry-title{font-family:'Playfair Display',serif;font-size:32px;color:#fff;margin-bottom:4px}
+.entry-sub{color:rgba(255,255,255,.5);font-size:14px;margin-bottom:24px;font-style:italic}
+.entry-question{color:rgba(255,255,255,.7);font-size:16px;margin-bottom:20px}
+.entry-buttons{display:flex;flex-direction:column;gap:12px}
+.entry-buttons button{padding:16px;border-radius:14px;border:1.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:#fff;font-size:16px;cursor:pointer;transition:all .25s;font-family:'Lato',sans-serif}
+.entry-buttons button:hover{border-color:var(--gold);background:rgba(201,168,76,.15);transform:translateY(-2px)}
+.entry-buttons button:active{transform:translateY(0)}
+#entryBtnApp{border-color:var(--gold);background:rgba(201,168,76,.12)}
+#entryBtnApp:hover{background:rgba(201,168,76,.25)}
+.entry-note{color:rgba(255,255,255,.4);font-size:12px;margin-top:16px;min-height:18px}
+
 /* Nav arrows - fixed */
 #arrowDown,#arrowUp{
   position:fixed;left:50%;transform:translateX(-50%);
@@ -436,6 +451,20 @@ footer{
 <canvas id="particles"></canvas>
 <canvas id="confettiCanvas"></canvas>
 
+<div id="entryOverlay">
+  <div class="entry-card">
+    <div class="entry-hearts">♡ ♡ ♡</div>
+    <h1 class="entry-title">Kevin <span class="amp">&amp;</span> Claudia</h1>
+    <p class="entry-sub">Tenés una invitación pendiente</p>
+    <p class="entry-question">¿Cómo querés verla?</p>
+    <div class="entry-buttons">
+      <button onclick="entryChoice('app')" id="entryBtnApp">📱 Como App</button>
+      <button onclick="entryChoice('web')" id="entryBtnWeb">🌐 Desde el navegador</button>
+    </div>
+    <p class="entry-note" id="entryNote"></p>
+  </div>
+</div>
+
 <div id="sectionContainer">
 
   <!-- Hero -->
@@ -669,6 +698,17 @@ var container = document.getElementById('sectionContainer');
 var sections = document.querySelectorAll('section');
 var total = sections.length;
 var currentIdx = 0;
+
+// Entry choice overlay
+var installPrompt = null, entryOverlay = document.getElementById('entryOverlay');
+window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); installPrompt=e; });
+if (window.matchMedia('(display-mode:standalone)').matches || window.navigator.standalone) { entryOverlay.style.display='none'; }
+function entryChoice(mode) {
+  entryOverlay.style.display='none';
+  document.getElementById('arrowDown').style.display='flex';
+  if (mode==='app' && installPrompt) { installPrompt.prompt(); installPrompt.userChoice.then(function(){ installPrompt=null; }); }
+  else if (mode==='app' && !installPrompt) document.getElementById('entryNote').textContent='💡 Abrí desde Chrome y buscá "Instalar app" en el menú';
+}
 
 function updateArrows() {
   var sec = sections[currentIdx];
