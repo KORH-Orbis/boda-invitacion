@@ -723,6 +723,7 @@ var isStandalone = window.matchMedia('(display-mode:standalone)').matches || win
 var validSlug = currentSlug && currentSlug !== 'invitacion.html' && currentSlug !== 'index.html' && !currentSlug.includes('.');
 
 if (isStandalone && validSlug) {
+  localStorage.setItem('appInstalled','1');
   entryOverlay.style.display = 'none';
   startMusic();
 } else if (isStandalone && !validSlug) {
@@ -737,8 +738,20 @@ function entryChoice(mode) {
   if (mode === 'app') {
     document.getElementById('entryChoiceContent').style.display = 'none';
     document.getElementById('entryAppMsg').style.display = 'block';
+    var note = document.getElementById('entryNote');
+    if (localStorage.getItem('appInstalled')) {
+      note.textContent = '✅ Ya la tenés instalada. Abrila desde tu pantalla de inicio.';
+    } else {
+      note.innerHTML = '💡 Abrí el menú ⋮ y buscá <strong>"Instalar app"</strong>';
+    }
     if (validSlug) localStorage.setItem('appLastSlug', currentSlug);
-    if (typeof installPrompt !== 'undefined' && installPrompt) { installPrompt.prompt(); installPrompt.userChoice.then(function(){ installPrompt = null; }); }
+    if (typeof installPrompt !== 'undefined' && installPrompt && !localStorage.getItem('appInstalled')) {
+      installPrompt.prompt();
+      installPrompt.userChoice.then(function(r){
+        if (r.outcome === 'accepted') localStorage.setItem('appInstalled','1');
+        installPrompt = null;
+      });
+    }
   } else {
     entryOverlay.style.display = 'none';
     document.getElementById('arrowDown').style.display = 'flex';
